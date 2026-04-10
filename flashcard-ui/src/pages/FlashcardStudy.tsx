@@ -222,7 +222,7 @@ export default function FlashcardStudy() {
     setDirection('right');
     setIsFlipped(false);
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev === set!.flashcards.length - 1 ? 0 : prev + 1));
+      setCurrentIndex((prev) => (prev === (set?.flashcards?.length || 1) - 1 ? 0 : prev + 1));
       setAnimating(false);
     }, 300);
   };
