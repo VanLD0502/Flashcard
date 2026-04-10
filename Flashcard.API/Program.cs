@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,20 +85,35 @@ try
         var db = scope.ServiceProvider.GetRequiredService<FlashcardDbContext>();
         if (dbProvider == "PostgreSQL")
         {
-            Console.WriteLine("[DB Init] Creating PostgreSQL Database if not exists...");
-            db.Database.EnsureCreated(); 
+            Console.WriteLine("[DB Init] Initializing PostgreSQL...");
+            
+            // This is more robust than EnsureCreated() for some cloud providers
+            var databaseCreator = db.Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
+            if (databaseCreator != null)
+            {
+                if (!databaseCreator.Exists()) databaseCreator.Create();
+                try 
+                {
+                    databaseCreator.CreateTables();
+                    Console.WriteLine("[DB Init] PostgreSQL Tables created successfully.");
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("[DB Init] Tables might already exist, skipping creation.");
+                }
+            }
         }
         else
         {
             Console.WriteLine("[DB Init] Migrating SQL Server Database...");
             db.Database.Migrate();
         }
-        Console.WriteLine("[DB Init] Success!");
+        Console.WriteLine("[DB Init] Initialization Success!");
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"[DB Init] CRITICAL ERROR: {ex.Message}");
+    Console.WriteLine($"[DB Init] ERROR: {ex.Message}");
     if (ex.InnerException != null) Console.WriteLine($"[DB Init] INNER: {ex.InnerException.Message}");
 }
 
