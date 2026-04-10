@@ -8,15 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { API_URL } from '../config';
 
-interface FlashcardInput {
-  id?: string;
-  index: number;
-  term: string;
-  definition: string;
-  image: File | null;
-  imagePreview: string | null;
-  isImageDeleted: boolean;
-}
+
 
 const EditSet: React.FC = () => {
   const { id } = useParams();
@@ -68,6 +60,7 @@ const EditSet: React.FC = () => {
       
       // Robust ID check handling all possible cases (camelCase, PascalCase, and specific AuthResponse naming)
       const setOwnerId = data?.userId ?? data?.UserId;
+      // @ts-ignore - Handle possible variations in user object
       const currentId = currentUser?.id ?? currentUser?.Id ?? currentUser?.userId ?? currentUser?.UserId;
 
       if (!setOwnerId || !currentId || setOwnerId.toString() !== currentId.toString()) {

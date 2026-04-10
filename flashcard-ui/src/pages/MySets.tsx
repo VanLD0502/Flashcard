@@ -52,7 +52,7 @@ export default function MySets() {
   };
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } }
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as any, stiffness: 260, damping: 22 } }
   };
 
   return (

@@ -233,12 +233,14 @@ export default function FlashcardStudy() {
     setDirection('left');
     setIsFlipped(false);
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev === 0 ? set!.flashcards.length - 1 : prev - 1));
+      setCurrentIndex((prev) => (prev === 0 ? (set?.flashcards?.length || 1) - 1 : prev - 1));
       setAnimating(false);
     }, 300);
   };
 
-  const card = set.flashcards[currentIndex];
+  const card = set?.flashcards ? set.flashcards[currentIndex] : null;
+
+  if (!set || !card) return null;
 
   return (
     <motion.div

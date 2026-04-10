@@ -53,7 +53,7 @@ const Header: React.FC = () => {
 
                 <div className="flex items-center gap-3 ml-2 pl-3 border-l border-slate-200">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 text-white flex items-center justify-center font-bold text-sm select-none shadow-md ring-2 ring-white">
-                    {user.username.charAt(0).toUpperCase()}
+                    {user?.username?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <button
                     onClick={handleLogout}

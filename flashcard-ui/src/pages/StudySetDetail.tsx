@@ -24,7 +24,7 @@ export default function StudySetDetail() {
   const [editAnswerImage, setEditAnswerImage] = useState<File | null>(null);
   const [editAnswerImagePreview, setEditAnswerImagePreview] = useState<string | null>(null);
   const [isAnswerImageDeleted, setIsAnswerImageDeleted] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+
   const [authError, setAuthError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingCard, setIsSavingCard] = useState(false);
@@ -192,7 +192,13 @@ export default function StudySetDetail() {
   };
 
   const saveCardEdit = async () => {
-    if (!user || !(user.id === set.userId || user.UserId === set.userId || user.id === set.UserId || user.UserId === set.UserId)) {
+    if (!user || !set) return;
+    
+    // Check ownership
+    const currentUserId = (user.id || user.UserId || user.userId)?.toString();
+    const setOwnerId = (set.userId || set.UserId)?.toString();
+    
+    if (currentUserId !== setOwnerId) {
       toast.error('You do not have permission to edit this set.');
       return;
     }
@@ -202,11 +208,11 @@ export default function StudySetDetail() {
     
     try {
       const fd = new FormData();
-      fd.append('Title', set.title);
-      fd.append('Description', set.description || '');
+      fd.append('Title', set?.title || '');
+      fd.append('Description', set?.description || '');
       
       if (editingCard.isNew) {
-        set.flashcards?.forEach((c, i) => {
+        set?.flashcards?.forEach((c, i) => {
           fd.append(`Cards[${i}].Id`, c.id);
           fd.append(`Cards[${i}].Term`, c.questionText);
           fd.append(`Cards[${i}].Definition`, c.answerText);
@@ -221,7 +227,7 @@ export default function StudySetDetail() {
         if (editImage) fd.append(`Cards[${nextIdx}].Image`, editImage);
         if (editAnswerImage) fd.append(`Cards[${nextIdx}].AnswerImage`, editAnswerImage);
       } else {
-        set.flashcards?.forEach((c, i) => {
+        set?.flashcards?.forEach((c, i) => {
           fd.append(`Cards[${i}].Id`, c.id);
           if (c.id === editingCard.id) {
             fd.append(`Cards[${i}].Term`, editTerm);
@@ -261,9 +267,9 @@ export default function StudySetDetail() {
         </Link>
         <div className="flex justify-between items-start gap-4">
           <div>
-            <h1 className="text-4xl font-black text-slate-800 mb-2 leading-tight">{set.title}</h1>
-            <p className="text-lg text-slate-500">{set.description}</p>
-            <p className="text-sm text-slate-400 mt-2">{set.flashcards?.length || 0} terms</p>
+            <h1 className="text-4xl font-black text-slate-800 mb-2 leading-tight">{set?.title}</h1>
+            <p className="text-lg text-slate-500">{set?.description}</p>
+            <p className="text-sm text-slate-400 mt-2">{set?.flashcards?.length || 0} terms</p>
           </div>
           {isOwner && (
             <Link
@@ -322,13 +328,12 @@ export default function StudySetDetail() {
       {/* Divider */}
       <div className="flex items-center gap-4 mb-6">
         <h2 className="text-xl font-bold text-slate-700">Terms in this set</h2>
-        <span className="text-sm font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">{set.flashcards?.length || 0}</span>
+        <span className="text-sm font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">{set?.flashcards?.length || 0}</span>
         <div className="flex-1 h-px bg-slate-100" />
       </div>
 
-      {/* Cards List */}
       <div className="space-y-3">
-        {set.flashcards?.map((card, index) => (
+        {set?.flashcards?.map((card, index) => (
           <motion.div
             key={card.id}
             initial={{ opacity: 0, y: 10 }}
